@@ -1,0 +1,13 @@
+#!/bin/bash
+
+ln -s /opt/hhvm-distro-packaging/dist/hhvm.spec /home/rpmbuilder/rpmbuild/SPECS/hhvm.spec
+ln -s /opt/hhvm-distro-packaging/dist /home/rpmbuilder/rpmbuild/SOURCES
+sed -i "s/#VERSION#/$VERSION/g" /home/rpmbuilder/rpmbuild/SPECS/hhvm.spec
+ln -s /var/out/hhvm-$VERSION.tar.gz /home/rpmbuilder/rpmbuild/SOURCES/hhvm-$VERSION.tar.gz
+bash -c 'scl enable devtoolset-4 - <<EOB
+/bin/build_boost.sh
+export BOOST_ROOT=/opt/boost
+cd ~/rpmbuild
+sudo yum-builddep -y SPECS/hhvm.spec
+rpmbuild --clean -ba --define "version ${VERSION}" SPECS/hhvm.spec
+EOB'
